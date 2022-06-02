@@ -1,0 +1,85 @@
+import os
+os.chdir('C:\\Users\\jenat\\Documents\\new')
+
+from mpl_toolkits.basemap import Basemap
+import matplotlib as mpl
+import numpy as np
+from descartes import PolygonPatch
+import geopandas as gp
+import shapefile
+from matplotlib.collections import LineCollection
+import matplotlib.cm as cm
+import matplotlib.pyplot as plt 
+from descartes import PolygonPatch
+import shapely 
+earth = 'cornsilk'
+from matplotlib.collections import PatchCollection
+import fiona
+import shapely.geometry as geometry
+import pylab as pl
+
+glaciers = gp.GeoDataFrame.from_file('nm_gro - Copy.shp')
+
+counties = gp.GeoDataFrame.from_file('nm_counties - Copy.shp')
+
+tribal = gp.GeoDataFrame.from_file('nm_tl - Copy.shp')
+
+
+shapefile = fiona.open(input_shapefile)
+points = [geometry.shape(point['geometry'])
+          for point in shapefile]
+
+#x = [p.coords.xy[0] for p in points]
+#y = [p.coords.xy[1] for p in points]
+
+y = glaciers.LAT.values
+x = glaciers.LONG_.values
+
+
+from __future__ import print_function
+import numpy as np
+import matplotlib.pyplot as plt
+from mpl_toolkits.basemap import Basemap as Basemap
+from matplotlib.colors import rgb2hex
+from matplotlib.patches import Polygon
+import shapefile
+import geopandas as gp
+
+fig, ax1 = plt.subplots(figsize=(18, 45))
+map1 = Basemap(resolution='i',projection='merc',llcrnrlat=31.547, urcrnrlat=37.149, llcrnrlon=-109.0, urcrnrlon=-103.0)
+map1.drawmapboundary(fill_color = 'lightskyblue')
+map1.fillcontinents(color=earth)
+map1.drawcounties(color='purple')
+x1,y1 = map1(x, y)
+map1.scatter(x1, y1, c = 'r',marker = "o", alpha = 1.0, zorder=10)  
+map1.readshapefile('nm_tl - Copy', name='states', drawbounds=True)
+
+
+###
+
+
+
+
+colors={}
+statenames=[]
+cmap = plt.cm.hot # use 'hot' colormap
+vmin = 0; vmax = 450 # set range.
+for shapedict in map1.states_info:
+    statename = shapedict['NAMELSAD00'][:2]
+    pop = popdensity[statename]
+        # calling colormap with value between 0 and 1 returns
+        # rgba value.  Invert color range (hot colors are high
+        # population), take sqrt root to spread out colors more.
+    colors[statename] = cmap(1.-np.sqrt((pop-vmin)/(vmax-vmin)))[:3]
+    statenames.append(statename)
+# cycle through state names, color each one.
+ax = plt.gca() # get current axes instance
+for nshape,seg in enumerate(map1.states):
+    # skip DC and Puerto Rico.
+    if statenames[nshape] not in ['District of Columbia','Puerto Rico']:
+        color = rgb2hex(colors[statenames[nshape]]) 
+        poly = Polygon(seg,facecolor=orange,edgecolor=color)
+        ax.add_patch(poly)
+
+plt.title("Map of New Mexico's Tribal lands (in orange)  and the amount of grocery store", fontsize = 20)
+plt.show()
